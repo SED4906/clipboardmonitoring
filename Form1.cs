@@ -20,6 +20,9 @@ namespace ClipboardMonitoringSED
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
 
+        [DllImport("user32.dll")]
+        static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
         /// <summary>
         /// Sent when the contents of the clipboard have changed.
         /// </summary>
@@ -29,8 +32,19 @@ namespace ClipboardMonitoringSED
         /// </summary>
         public Form1()
         {
+            ShowInTaskbar = false;
+            var accessHandle = this.Handle;
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ChangeToMessageOnlyWindow();
+        }
+        private void ChangeToMessageOnlyWindow()
+        {
+            IntPtr HWND_MESSAGE = new IntPtr(-3);
+            SetParent(this.Handle, HWND_MESSAGE);
             AddClipboardFormatListener(this.Handle);
-            InitializeComponent();
         }
 
         protected override void WndProc(ref Message m)
